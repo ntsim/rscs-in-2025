@@ -1,0 +1,22 @@
+{
+  "name": "rscs-in-2025",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "slidev build",
+    "dev": "slidev --open",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.1.0",
+    "@slidev/theme-default": "latest",
+    "playwright-chromium": "^1.55.0",
+    "unocss": "^66.5.0",
+    "vue": "^3.5.18"
+  },
+  "packageManager": "pnpm@10.15.1+sha512.34e538c329b5553014ca8e8f4535997f96180a1d0f614339357449935350d924e22f8614682191264ec33d1462ac21561aff97f6bb18065351c162c7e8f6de67",
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "prettier-plugin-slidev": "^1.0.5"
+  }
+}
