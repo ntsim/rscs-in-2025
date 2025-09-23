@@ -23,7 +23,7 @@ seoMeta:
 
 # React Server Components in 2025
 
-Where are we at?
+## Where are we at?
 
 ---
 layout: full
@@ -43,9 +43,8 @@ layout: full
 # Agenda
 
 1. What are React server components?
-2. How do you use them?
-3. Current state and controversy
-4. Where are things going?
+2. Current state and controversy
+3. Should you use them?
 
 ---
 layout: full
@@ -108,12 +107,10 @@ Server-side rendering was great, but...
 <v-clicks depth="2">
 
 - React renders everything **twice**
-  - Once on server and once on client to **hydrate**
+  - Once on server to **render HTML**
+  - Once on client to **hydrate**
 - Need to ship the **entire app** to hydrate
   - **Larger bundles** - longer until page is **interactive**
-- Data fetching via framework-specific APIs
-  - Next's `getServerSideProps`, `getStaticProps`
-  - Remix's `loader`
 
 </v-clicks>
 
@@ -136,9 +133,9 @@ layout: default
 
 Main aims:
 
-- Smaller client bundles
-- Automatic code-splitting
-- Parallelise data fetching to avoid waterfalls
+1. Smaller client bundles
+2. Automatic code-splitting
+3. Optimise data fetching on server
 
 </v-clicks>
 
@@ -188,7 +185,7 @@ function ProfileAvatar() {
 
 ```jsx {1,2|*}
 async function ProfileAvatar() {
-  const user = await fetchProfile();
+  const user = await getProfile();
 
   return (
     <div>
@@ -206,8 +203,6 @@ layout: default
 
 # Caveats
 
-With server components
-
 <v-clicks depth="2">
 
 - Rendered on the **server** or at **build time**
@@ -218,10 +213,6 @@ With server components
   - No context
 
 </v-clicks>
-
-<v-click>
-
-</v-click>
 
 ---
 layout: statement
@@ -268,15 +259,20 @@ function Counter() {
 <v-clicks depth="2">
 
 - `use client` tells the **bundler** to treat the file as a **client module**
-  - Shipped to client
 - Server components **are not** shipped to client
-  - Reduced bundle size
+- **Smaller** bundles!
 
 </v-clicks>
 
 <!--
 - Can't mix server and client components in the same file
 -->
+
+---
+layout: statement
+---
+
+## ⚠️ Server components are the **default** when enabled
 
 ---
 layout: full
@@ -293,29 +289,23 @@ transition: fade
 <img src="./assets/rsc-example.svg" alt="App using server and client components" object-contain h-full w-full />
 
 ---
-layout: statement
----
-
-## Server components are the **default** when enabled
-
-Opt out, not in
-
----
 layout: section
+disabled: true
 ---
 
-# What about the data?
+# What about data fetching?
 
 ---
 layout: default
+disabled: true
 ---
 
 # Data fetching in RSCs
 
-<v-clicks>
+<v-clicks depth="2">
 
-- Just use `async` / `await` 😍
-- Server components fetch data in parallel - **no waterfalls**
+- Server components fetch data on server
+  - Reduces client-server **round trips**
 - New(ish) problem - data fetching can be **duplicated**
 
 </v-clicks>
@@ -342,11 +332,10 @@ async function UserInfo({ userId }) {
 
 ---
 layout: default
+disabled: true
 ---
 
 # Optimising data fetching
-
-New caching APIs to de-duplicate requests
 
 <v-click>
 
@@ -374,14 +363,15 @@ Next.js' extended `fetch` API:
 
 ---
 layout: default
+disabled: true
 ---
 
-# Server functions
+# Server actions / functions
 
 <v-clicks>
 
 - ⚠️ Not the same as server components ⚠️
-- Run **server-side logic** (e.g. saving data) without writing an API 🪄
+- Run **server-side logic** (e.g. saving data) without writing an API
 - Mark server functions with `use server`
 
 </v-clicks>
@@ -401,7 +391,19 @@ function Example({ userId }) {
 }
 ```
 
-```jsx {*|4-8}
+```jsx {4-6}
+import db from "your-db";
+
+function Example({ userId }) {
+  const handleClick = async () => {
+    "use server";
+  };
+
+  return <button onClick={handleClick}>Delete user</button>;
+}
+```
+
+```jsx {4-8}
 import db from "your-db";
 
 function Example({ userId }) {
@@ -420,7 +422,7 @@ function Example({ userId }) {
 
 <v-clicks>
 
-⚠️ Only allowed in **server components**!
+✨ RPC magic implemented by bundler / framework 🪄
 
 </v-clicks>
 
@@ -438,8 +440,10 @@ layout: default
 
 <v-clicks>
 
-- Next.js' App Router has been stable since 2024
-- Only **one** other framework - [Waku](https://waku.gg/)
+- Next.js' App Router has been **stable** since **late 2024**
+- React 19 released in **December 2024**
+  - Server components officially stable
+- Still only **one** other framework - [Waku](https://waku.gg/) (pre-v1)
 - Slow adoption by ecosystem and users
 
 </v-clicks>
@@ -454,13 +458,13 @@ layout: statement
 layout: default
 ---
 
-# The server component tax
+# Adoption barriers
 
 <v-clicks>
 
 - It's a **paradigm shift** - need to learn new programming model
 - Hard for larger projects to migrate
-- Server components aren't needed for every application
+- Server components aren't needed for _every_ application
 
 </v-clicks>
 
@@ -470,11 +474,10 @@ layout: default
 
 # Governance and direction
 
-<v-clicks depth="2">
+<v-clicks>
 
-- Some of React's main contributors moved to Vercel
-  - Majority still work at Meta
-- The React team now recommends using **frameworks** over other options
+- Some of React's main contributors moved to **Vercel**
+  - Vercel owns Next.js
 
 </v-clicks>
 
@@ -486,11 +489,12 @@ layout: default
 
 </v-click>
 
-<v-click>
+<v-clicks>
 
-Does Vercel have a **conflict of interest**? 🤨
+- Vercel benefits from pushing **frameworks** and **server components**
+- Does Vercel have a **conflict of interest**? 🤨
 
-</v-click>
+</v-clicks>
 
 ---
 layout: default
@@ -507,11 +511,15 @@ layout: default
 
 </v-clicks>
 
+<!--
+- Meta has specialised server infrastructure to deploy server components
+-->
+
 ---
 layout: default
 ---
 
-# The reality of RSCs
+# The reality
 
 <v-clicks depth="2">
 
@@ -519,7 +527,6 @@ layout: default
 - Requires **deep knowledge** of bundlers 😵‍💫
 - Better when integrated into a framework for **cohesive** experience
 - Frameworks aren't a bad thing!
-- Client-side rendering isn't going anywhere
 
 </v-clicks>
 
@@ -539,21 +546,17 @@ layout: quote
 layout: default
 ---
 
-# Things to look out for
+# Should you adopt RSCs
 
 <v-clicks depth="2">
 
-## Partial pre-rendering (PPR)
-
-- Next.js feature
-- Render as much **static** content at **build time**
-- Server renders **dynamic** content at **runtime** and streams it to client
-
-## Wider support
-
-- Vite plugin
-- Parcel support
-- More framework adoption
+- Yes! New projects should **definitely consider** it
+- Good use cases:
+  - Apps where page load performance is critical
+  - Apps that don't need a separate backend
+- Still **unclear benefits** for older projects
+- You don't need server components to keep using React!
+  - CSR and SSR aren't going anywhere
 
 </v-clicks>
 
@@ -561,17 +564,21 @@ layout: default
 layout: default
 ---
 
-# Should you adopt RSCs?
+# Looking forward
 
 <v-clicks depth="2">
 
-- Good use cases:
-  - Apps where page load performance is critical
-  - Apps that don't need a separate backend
-  - Static websites
-- New projects should **definitely consider** it
-  - Unclear benefit for older projects
-- Don't need server components to keep using React!
+## Partial pre-rendering (PPR)
+
+- Next.js feature
+- Render as much **static** content at **build time**
+- Server renders **dynamic** content at **request time** and streams it to client
+
+## Bundlers
+
+- Vite plugin
+- Parcel support
+- More framework adoption
 
 </v-clicks>
 
@@ -585,4 +592,4 @@ layout: two-cols
 - LinkedIn: https://linkedin.com/in/ntsim
 - GitHub: https://github.com/ntsim
 
-<img src="./assets/linkedin-qr-code.png" object-contain object-center h="200px" w="200px" />
+<img src="./assets/linkedin-qr-code.png" object-contain object-center h="200px" w="200px" mt="10" />
